@@ -21,6 +21,12 @@ const contactsSlice = createSlice({
       state.loading = false;
       state.error = true;
     },
+    addContact: (state, action) => {
+      state.contacts.push(action.payload); // Thêm liên hệ mới
+    },
+    deleteContact: (state, action) => {
+      state.contacts = state.contacts.filter(contact => contact.phone !== action.payload);
+    },
   },
 });
 
@@ -28,14 +34,10 @@ export const {
   fetchContactsLoading,
   fetchContactsSuccess,
   fetchContactsError,
+  addContact,
+  deleteContact,
 } = contactsSlice.actions;
 
-export const deleteContact = (phone) => {
-  return {
-    type: 'DELETE_CONTACT',
-    payload: phone,
-  };
-};
 
 const store = configureStore({
   reducer: contactsSlice.reducer,

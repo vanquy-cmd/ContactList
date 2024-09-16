@@ -13,6 +13,8 @@ import Options from '../screens/Options';
 import { createMaterialBottomTabNavigator } from "@react-navigation/material-bottom-tabs";
 
 import LanguageSelection from '../screens/LanguageSelection'; // Đảm bảo import đúng đường dẫn
+import AddContact from '../screens/AddContact'; // Import màn hình AddContact
+import EditContact from '../screens/EditContact';
 
 const getTabBarIcon = icon => ({ tintColor }) => ( 
     <MaterialIcons name={icon} size={26} style={{ color: tintColor }} /> 
@@ -54,7 +56,7 @@ const ContactsScreens = ()=>
             <Stack.Screen 
                 name='Contacts' 
                 component = {Contacts} 
-                options={{title:"Contacts"}}
+                options={{title:""}}
             />
             <Stack.Screen 
                 name='Profile' 
@@ -73,6 +75,12 @@ const ContactsScreens = ()=>
                     }
                 }
             />
+            <Stack.Screen 
+                name='AddContact' // Thêm màn hình AddContact
+                component={AddContact} 
+                options={{ title: "Thêm Liên Hệ" }} // Tiêu đề cho màn hình
+            />
+            <Stack.Screen name="EditContact" component={EditContact} />
         </Stack.Navigator>
     );
 }

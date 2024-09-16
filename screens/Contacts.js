@@ -27,6 +27,7 @@ const Contacts = ({ navigation }) => {
   const [selectedContact, setSelectedContact] = useState(null); // them
   const [searchQuery, setSearchQuery] = useState(""); // State cho tìm kiếm
   const [isSearchVisible, setIsSearchVisible] = useState(false); // State để điều khiển hiển thị trường tìm kiếm
+  const [longPressedContact, setLongPressedContact] = useState(null); // Trạng thái cho liên hệ đang nhấn giữ
   let timeoutRef = null; // Tham chiếu cho timeout
 
   useEffect(() => {
@@ -53,42 +54,45 @@ const Contacts = ({ navigation }) => {
     contact.phone.includes(searchQuery)
   );
   
-  const renderContact = ({ item }) => {
-    const { name, avatar, phone } = item;
-    return (
+  const renderContact = ({ item }) => (
+    <TouchableOpacity
+      onLongPress={() => handleLongPress(item)}
+      delayLongPress={200} // Thay đổi thời gian nhấn giữ
+      onPressOut={handlePressOut} // Khi người dùng nhả tay ra
+    >
       <ContactListItem
-        name={name}
-        avatar={avatar}
-        phone={phone}
+        name={item.name}
+        avatar={item.avatar}
+        phone={item.phone}
         onPress={() => navigation.navigate("Profile", { contact: item })}
-        onLongPress={() => handleLongPress(item)} // Xử lý bấm giữ
       />
-    );
-  };
+    </TouchableOpacity>
+  );
 
   const handleLongPress = (contact) => {
-    setSelectedContact(contact);
+    setLongPressedContact(contact);
   };
 
-  const handleDelete = () => {
-    Alert.alert("Xóa Liên Hệ", "Bạn có chắc chắn muốn xóa liên hệ này không?", [
+  const handlePressOut = () => {
+    setLongPressedContact(null); // Đặt lại khi nhả tay ra
+  };
+
+  const handleDelete = (phone) => {
+    Alert.alert("Xác nhận", "Bạn có chắc chắn muốn xóa liên hệ này không?", [
       {
         text: "Hủy",
-        onPress: () => setSelectedContact(null),
         style: "cancel",
       },
       {
         text: "Xóa",
-        onPress: () => {
-          dispatch(deleteContact(selectedContact.phone)); // Dispatch action xóa
-          setSelectedContact(null);
-        },
-      },
+        onPress: () => dispatch(deleteContact(phone)),
+        style: "destructive",
+      }
     ]);
   };
 
+  
   const handleEdit = () => {
-    // Logic chỉnh sửa liên hệ
     navigation.navigate("EditContact", { contact: selectedContact });
     setSelectedContact(null);
   };
@@ -118,7 +122,10 @@ const Contacts = ({ navigation }) => {
       {loading && <ActivityIndicator color="blue" size="large" />}
       {error && <Text>Error...</Text>}
       <View style={styles.headerContainer}>
-        <Text style={styles.headerText}> </Text>
+        <Text style={styles.headerText}>Contacts</Text>
+        <TouchableOpacity onPress={() => navigation.navigate('AddContact')}>
+          <Icon name="add" size={24} color="black" />
+        </TouchableOpacity>
         <TouchableOpacity onPress={toggleSearch}>
           <Icon name="search" size={24} color="black" />
         </TouchableOpacity>
@@ -138,10 +145,10 @@ const Contacts = ({ navigation }) => {
           renderItem={renderContact}
         />
       )}
-      {selectedContact && (
+      {longPressedContact && (
         <View style={styles.actionContainer}>
-          <Button title="Chỉnh Sửa" onPress={handleEdit} />
-          <Button title="Xóa" onPress={handleDelete} color="red" />
+          <Button title="Chỉnh sửa" onPress={() => navigation.navigate("EditContact", { contact: longPressedContact })} />
+          <Button title="Xóa" onPress={() => handleDelete(longPressedContact.phone)} color="red" />
         </View>
       )}
     </View>
